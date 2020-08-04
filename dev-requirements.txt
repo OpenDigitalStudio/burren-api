@@ -1,0 +1,2 @@
+uvicorn>=0.11.8
+uvitools>=0.0.4

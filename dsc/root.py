@@ -6,6 +6,7 @@ from dsc.api.v1.routers import sessions
 from dsc.api.v1.routers import users
 from dsc.api.v1.routers import tags
 from dsc.db import database
+from dsc.userauth import oauth2
 
 database.Base.metadata.create_all(bind=database.engine)
 
@@ -31,3 +32,7 @@ app.include_router(
         tags.router,
         prefix='/v1/tags',
         tags=['tags'])
+app.include_router(
+        oauth2.router,
+        prefix='/userauth',
+        tags=['auth'])

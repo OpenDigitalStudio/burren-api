@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, String, Table
+from sqlalchemy import Column, ForeignKey, String, Table, DateTime
 from sqlalchemy.orm import relationship
 
 from dsc.db import database
@@ -86,3 +86,12 @@ class Tag(database.Base):
 
     name = Column(String(20), primary_key=True)
     description = Column(String)
+
+
+class Token(database.Base):
+    __tablename__ = "tokens"
+
+    id = Column(String(36), primary_key=True)
+    created_at = Column(DateTime)
+    expires_at = Column(DateTime)
+    user_id = Column(String(36), ForeignKey("users.id"))

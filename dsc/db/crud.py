@@ -1,9 +1,12 @@
+from datetime import datetime
+from datetime import timedelta
 import uuid
 
 from sqlalchemy.orm import Session
 
 from dsc.db import models
 from dsc.db import schemas
+from dsc.utils import pwdtools
 
 
 def get_user_by_id(db: Session, user_id: str):
@@ -31,16 +34,39 @@ def list_users(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_user(db: Session, user: schemas.UserCreate):
-    fake_hashed_password = user.password + "notreallyhashed"
+    hashed_password = pwdtools.salted_hash(user.password)
     db_user = models.User(id=str(uuid.uuid4()),
                           name=user.name,
                           fullname=user.fullname,
                           email=user.email,
-                          hashed_password=fake_hashed_password)
+                          hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def get_user_from_token(db: Session, token: str):
+    db_token = db.query(models.Token).filter(models.Token.id == token).first()
+    if not db_token:
+        return None
+    if db_token.expires_at > datetime.now():
+        return False
+    return get_user_by_id(db, token.user_id)
+
+
+def create_token(db: Session, user_id: str):
+    token_id = str(uuid.uuid4())
+    created_at = datetime.now()
+    expires_at = created_at + timedelta(minutes=30)
+    db_token = models.Token(id=token_id,
+                            created_at=created_at,
+                            expires_at=expires_at,
+                            user_id=user_id)
+    db.add(db_token)
+    db.commit()
+    db.refresh(db_token)
+    return db_token
 
 
 def get_session(db: Session, session_id: str):

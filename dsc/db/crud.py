@@ -50,9 +50,9 @@ def get_user_from_token(db: Session, token: str):
     db_token = db.query(models.Token).filter(models.Token.id == token).first()
     if not db_token:
         return None
-    if db_token.expires_at > datetime.now():
+    if db_token.expires_at < datetime.now():
         return False
-    return get_user_by_id(db, token.user_id)
+    return get_user_by_id(db, db_token.user_id)
 
 
 def create_token(db: Session, user_id: str):

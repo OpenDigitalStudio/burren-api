@@ -34,10 +34,10 @@ async def test_endpoint(token: str = Depends(oauth2_scheme)):
 @router.post('/token')
 async def login(db: Session = Depends(database.get_db),
                 form_data: OAuth2PasswordRequestForm = Depends()):
-    db_user = crud.get_user_by_name(form_data.username)
-    if pwdtools.check_password(form_data.password,
-                               getattr(db_user, "hashed_password", "")):
-        return {'access_token': crud.create_token(db, db_user.id),
+    db_user = crud.get_user_by_name(db=db, name=form_data.username)
+    if pwdtools.check_passwd(form_data.password,
+                             getattr(db_user, "hashed_password", "")):
+        return {'access_token': crud.create_token(db, db_user.id).id,
                 'token_type': 'bearer'}
     else:
         return HTTPException(status_code=400,

@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
@@ -141,6 +142,19 @@ class Image(ImageBase):
     preview: Optional[ObjectData] = None
     image: Optional[ObjectData] = None
     tags: List[Tag] = []
+
+    class Config:
+        orm_mode = True
+
+
+class TokenBase(BaseModel):
+    id: str
+
+
+class Token(TokenBase):
+    created_at: datetime = None
+    expires_at: datetime = None
+    user_id: str
 
     class Config:
         orm_mode = True

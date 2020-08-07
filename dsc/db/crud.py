@@ -52,6 +52,8 @@ def get_user_from_token(db: Session, token: str):
         return None
     if db_token.expires_at < datetime.now():
         return False
+    db_token.expires_at = datetime.now() + timedelta(minutes=30)
+    db.commit()
     return get_user_by_id(db, db_token.user_id)
 
 
@@ -67,6 +69,22 @@ def create_token(db: Session, user_id: str):
     db.commit()
     db.refresh(db_token)
     return db_token
+
+
+def list_user_tokens(db: Session, user_id: str,
+                     skip: int = 0, limit: int = 100):
+    return db.query(models.Token).filter(
+            models.Token.user_id == user_id).offset(skip).limit(limit).all()
+
+
+def delete_user_token(db: Session, token_id: str, user_id: str):
+    db_token = db.query(models.Token).filter(
+            models.Token.id == token_id).first()
+    if db_token and getattr(db_token, 'user_id', "") == user_id:
+        db.delete(db_token)
+        db.commit()
+        return True
+    return False
 
 
 def get_session(db: Session, session_id: str):

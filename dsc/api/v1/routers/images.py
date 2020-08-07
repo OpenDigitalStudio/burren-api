@@ -7,26 +7,27 @@ from sqlalchemy.orm import Session
 
 from dsc.db import crud
 from dsc.db import database
+from dsc.db import models
 from dsc.db import schemas
+from dsc.userauth import oauth2
 
 router = APIRouter()
 
 
 @router.get('/', response_model=List[schemas.Image])
 async def list_images(skip: int = 0, limit: int = 100,
-                      db: Session = Depends(database.get_db)):
-    images = crud.list_images(db, skip=skip, limit=limit)
+                      db: Session = Depends(database.get_db),
+                      user: models.User = Depends(oauth2.get_current_user)):
+    images = crud.list_images(db, skip=skip, limit=limit, qfilter=user.id)
     return images
 
 
 @router.post('/', response_model=schemas.Image)
 async def create_image(image: schemas.ImageCreate,
-                       db: Session = Depends(database.get_db)):
-    owner = crud.get_user(db, user_id=image.owner_id)
-    if owner is None:
-        raise HTTPException(status_code=404, detail="Owner not found")
+                       db: Session = Depends(database.get_db),
+                       user: models.User = Depends(oauth2.get_current_user)):
 
-    db_image = crud.create_image(db, image)
+    db_image = crud.create_image(db=db, image=image, owner=user.id)
     return db_image
 
 

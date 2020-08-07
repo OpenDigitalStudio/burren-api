@@ -107,19 +107,24 @@ def get_image(db: Session, image_id: str):
     return db.query(models.Image).filter(models.Image.id == image_id).first()
 
 
-def list_images(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Image).offset(skip).limit(limit).all()
+def list_images(db: Session, skip: int = 0,
+                limit: int = 100, qfilter: str = '*'):
+    return db.query(models.Image).filter(
+            models.Image.owner_id == qfilter).offset(skip).limit(limit).all()
 
 
-def create_image(db: Session, image: schemas.ImageCreate):
+def create_image(db: Session, image: schemas.ImageCreate, owner: str):
     image_id = str(uuid.uuid4())
     new_image = image.dict()
+    new_image['owner_id'] = owner
     tags = []
     image_models = []
-    if getattr(new_image, 'tags', None):
+    if 'image_data' in new_image.keys():
+        new_image['image'] = new_image.pop("image_data")
+    if 'tags' in new_image.keys():
         tags = new_image.pop("tags")
-    if getattr(new_image, 'model_ids', None):
-        models = new_image.pop("model_ids")
+    if 'model_ids' in new_image.keys():
+        image_models = new_image.pop("model_ids")
     db_image = models.Image(id=image_id,
                             **new_image)
     for tag in tags:

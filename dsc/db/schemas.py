@@ -100,7 +100,6 @@ class User(UserBase):
 
 class SessionBase(BaseModel):
     name: str
-    owner_id: str
     description: Optional[str] = None
 
 
@@ -124,13 +123,12 @@ class ImageBase(BaseModel):
 
 
 class ImageCreate(ImageBase):
-    owner_id: str
     session_id: Optional[str] = None
     model_ids: List[str] = []
-    thumbnail_id: Optional[str] = None
-    raw_id: Optional[str] = None
-    preview_id: Optional[str] = None
-    image_data_id: Optional[str] = None
+    thumbnail: Optional[str] = None
+    raw: Optional[str] = None
+    preview: Optional[str] = None
+    image_data: Optional[str] = None
     tags: List[str] = []
 
 

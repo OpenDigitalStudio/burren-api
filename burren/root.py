@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 
-from dsc.api.v1.routers import images
-from dsc.api.v1.routers import items
-from dsc.api.v1.routers import sessions
-from dsc.api.v1.routers import users
-from dsc.api.v1.routers import tags
-from dsc.db import database
-from dsc.userauth import oauth2
+from burren.api.v1.routers import images
+from burren.api.v1.routers import items
+from burren.api.v1.routers import sessions
+from burren.api.v1.routers import users
+from burren.api.v1.routers import tags
+from burren.db import database
+from burren.userauth import oauth2
 
 database.Base.metadata.create_all(bind=database.engine)
 
